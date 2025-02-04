@@ -1,0 +1,13 @@
+.scrollbar::-webkit-scrollbar {
+  width: 2px;
+}
+::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 5px grey;
+  border-radius: 10px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: rgb(166, 94, 248);
+  border-radius: 5px;
+}
