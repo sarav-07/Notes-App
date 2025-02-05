@@ -71,7 +71,7 @@ export default function SearchInput() {
           <TbSortAscending2 className="h-5 w-5" />
         </button>
       </div>
-      <CardDashboard AllData={data} />
+      <CardDashboard AllData={data} refreshData={FetchData} />
     </div>
 
   );

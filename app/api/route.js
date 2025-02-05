@@ -22,9 +22,9 @@ export async function POST(request) {
 
     try {
         const body = await request.json();
-        const { noteCount, content } = body;
-
-        const notes = new Note({ title: noteCount, body: content });
+        const { noteCount, content ,imageUrl} = body;
+        console.log(imageUrl)
+        const notes = new Note({ title: noteCount, body: content ,img:imageUrl });
         await notes.save().then(() => console.log("-----------Note Saves successsfully ---------"))
 
         const data = await Note.find();

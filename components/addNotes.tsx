@@ -6,57 +6,153 @@ import { MdSend } from "react-icons/md";
 import Image from "next/image";
 import sound from "@/public/sound.gif";
 import { Toaster, toast } from "react-hot-toast";
+import { useFetchAudio } from "./fetchAudio";
 
-export default function AddNotes() {
+interface Props {
+    refreshData: () => void;
+}
+
+export default function AddNotes({ refreshData }: Props) {
     const [record, setRecord] = useState(false);
     const [time, setTime] = useState(0);
-    const [content, setContent] = useState("")
+    const [content, setContent] = useState("");
     const [number, setNumber] = useState(0);
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imageUrl, setImageUrl] = useState("");
+    const [isUploading, setIsUploading] = useState(false);
+    const transcribedText = useFetchAudio(record ? "start" : "");
+
     useEffect(() => {
+        let intervalId: NodeJS.Timeout;
+
         if (record) {
-            const timer = setTimeout(() => {
-                setTime((prevTime) => {
-                    if (prevTime >= 60) {
+            toast("60 second message allowed", { icon: "😅" });
+            intervalId = setInterval(() => {
+                setTime(prevTime => {
+                    if (prevTime >= 59) {
                         setRecord(false);
                         return 0;
                     }
                     return prevTime + 1;
                 });
             }, 1000);
-            return () => clearTimeout(timer);
-        } else {
-            setTime(0);
-        }
-    }, [record, time]);
-    // useEffect(() => {
-    //     console.log(content)
-    // }, [content])
-    const sendData = async () => {
-        const noteCount = "Note" + number;
-        try {
-            if (content.length > 0) {
-                fetch("/api", {
-                    method: 'POST',
-                    body: JSON.stringify({ noteCount, content })
-                })
-                setNumber(num => num + 1);
-                setContent("");
-            } else {
-                toast.error("No Content found . Please Add note", { duration: 800 })
-            }
-        } catch (err) {
-            console.error("Something went wrong")
         }
 
-    }
+        return () => {
+            if (intervalId) clearInterval(intervalId);
+            if (!record) setTime(0);
+        };
+    }, [record]);
+
+    useEffect(() => {
+        if (!record && transcribedText) {
+            setContent(transcribedText);
+        }
+    }, [record, transcribedText]);
+
+    const handleImageUpload = async (): Promise<string | null> => {
+        if (!imageFile) {
+            toast.error('No image selected');
+            return null;
+        }
+
+        setIsUploading(true);
+
+        try {
+            // Convert image to Base64
+            const reader = new FileReader();
+            reader.readAsDataURL(imageFile);
+
+            const base64Image = await new Promise<string>((resolve, reject) => {
+                reader.onloadend = () => {
+                    const result = reader.result as string;
+                    if (result && result.startsWith('data:image')) {
+                        resolve(result);
+                    } else {
+                        reject(new Error('Invalid image format'));
+                    }
+                };
+                reader.onerror = () => {
+                    reject(new Error('Failed to read image file'));
+                };
+            });
+
+            // Upload to Cloudinary
+            const response = await fetch('/api/upload', {
+                method: 'POST',
+                body: JSON.stringify({ image: base64Image }),
+                headers: { 'Content-Type': 'application/json' },
+            });
+
+            if (!response.ok) {
+                throw new Error('Upload failed');
+            }
+
+            const data = await response.json();
+            setImageUrl(data.url); // Update state for UI
+            // toast.success('Image uploaded successfully!');
+            return data.url; // Return the new URL
+        } catch (error) {
+            console.error('Image upload error:', error);
+            toast.error('Image upload failed. Please try again.');
+            setImageFile(null);
+            setImageUrl('');
+            return null;
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
+    const sendData = async () => {
+        let uploadedImageUrl = imageUrl;
+
+        if (imageFile) {
+            const newImageUrl = await handleImageUpload();
+            if (newImageUrl === null) {
+                toast.error("Image upload failed. Note not sent.");
+                return;
+            }
+            uploadedImageUrl = newImageUrl;
+        }
+
+        try {
+            if (content.length > 0 || uploadedImageUrl) {
+                const noteCount = "Note" + number;
+                const response = await fetch("/api", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        noteCount,
+                        content,
+                        imageUrl: uploadedImageUrl
+                    }),
+                });
+
+                if (response.ok) {
+                    setNumber((num) => num + 1);
+                    setContent("");
+                    setImageFile(null);
+                    setImageUrl(""); // Reset imageUrl after successful submission
+                    refreshData();
+                    toast.success("Note added successfully!");
+                } else {
+                    toast.error("Failed to add note.");
+                }
+            } else {
+                toast.error("Please add content or image", { duration: 800 });
+            }
+        } catch (err) {
+            console.error("Something went wrong");
+            toast.error("Failed to add note.");
+        }
+    };
 
     return (
         <div className="flex justify-center items-center w-full p-4 bg-white ">
-            <Toaster
-                position="top-right"
-                reverseOrder={true}
-            />
-            <div className="relative w-full  flex">
+            <Toaster position="top-right" reverseOrder={true} />
+            <div className="relative w-full flex">
                 <div className="relative w-full">
                     <input
                         value={content}
@@ -66,17 +162,27 @@ export default function AddNotes() {
                         onChange={(e) => setContent(e.target.value)}
                         required
                     />
-
                     <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
                         <label htmlFor="image-upload" className="cursor-pointer">
                             <FiImage className="w-5 h-5" />
-                            <input type="file" id="image-upload" accept="image/*" className="hidden" />
+                            <input
+                                type="file"
+                                id="image-upload"
+                                accept="image/*"
+                                onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+                                className="hidden"
+                            />
                         </label>
                     </div>
-
+                    {imageFile && (
+                        <span className="absolute left-10 top-1/2 -translate-y-1/2 text-sm text-gray-500">
+                            {isUploading ? "Uploading..." : imageFile.name}
+                        </span>
+                    )}
                     <button
                         className={`${!record ? 'w-10' : 'w-40'} h-10 absolute right-3 top-1/2 -translate-y-1/2 bg-red-500 rounded-full hover:bg-red-600 transition-all duration-200 flex items-center justify-center`}
                         onClick={() => setRecord(!record)}
+                        disabled={isUploading}
                     >
                         {record || <FiMic className="w-5 h-5 text-white" />}
                         {record && (
@@ -88,9 +194,16 @@ export default function AddNotes() {
                         )}
                     </button>
                 </div>
-                <button className="w-14 flex items-center justify-center cursor-pointer hover:bg-zinc-100 active:text-gray-600  "
-                    onClick={sendData}>
-                    <MdSend className="w-6 h-6" />
+                <button
+                    className="w-14 flex items-center justify-center cursor-pointer hover:bg-zinc-100 active:text-gray-600"
+                    onClick={sendData}
+                    disabled={isUploading}
+                >
+                    {isUploading ? (
+                        <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                        <MdSend className="w-6 h-6" />
+                    )}
                 </button>
             </div>
         </div>
