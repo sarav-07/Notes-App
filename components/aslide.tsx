@@ -8,7 +8,7 @@ const AsidePanel = () => {
 //   const router = useRouter(); // Get the current route
 
   return (
-    <aside className="w-[50rem]  bg-gray-50 text-gray-800 h-[95vh] flex flex-col rounded-2xl border-[1px] border-gray-200">
+    <aside className="w-[28rem]  bg-gray-50 text-gray-800 h-[95vh] flex flex-col rounded-2xl border-[1px] border-gray-200">
       {/* Heading */}
       <div className="p-6 text-2xl font-bold border-b border-gray-200">
         AI Notes

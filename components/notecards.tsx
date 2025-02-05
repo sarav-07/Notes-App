@@ -1,9 +1,29 @@
+"use client"
 import { FiCopy } from "react-icons/fi";
-import { HiDotsVertical } from "react-icons/hi";
+import { RiDeleteBin5Line } from "react-icons/ri";
 import { FaRegImage, FaRegFileAudio } from "react-icons/fa";
 import custom from "./custom.module.css"
+import { useState } from "react";
+import { FaCheckSquare } from "react-icons/fa";
 
-export default function NoteCard() {
+interface prop{
+  _id:string,
+  title:string,
+  body:string,
+  img?:string
+}
+export default function NoteCard({Mynotes}:{Mynotes:prop}) {
+  const [copyied,setCopied]=useState(false);
+  const copy=async()=>{
+    await navigator.clipboard.writeText(Mynotes.body);
+    setCopied(true);
+    setTimeout(()=>setCopied(false),1000)
+  }
+  const  deleteItem=async()=>{
+    await fetch(`/api?query=${Mynotes._id}`,{
+      method:"DELETE"
+    })
+  }
   return (
     <div className="w-full max-w-96 p-4 rounded-xl border border-gray-200 bg-white h-96 min-w-96 flex flex-col">
       {/* Date & Time */}
@@ -13,18 +33,12 @@ export default function NoteCard() {
 
       {/* Note Title */}
       <h3 className="text-lg font-semibold text-gray-800 mb-2">
-        Meeting Notes - Client Discussion
+        {Mynotes.title}
       </h3>
 
       {/* Notes Content */}
       <p className={`text-gray-600 text-sm mb-4 flex-1 overflow-y-auto ${custom.scrollbar}`}>
-        Discussed project requirements and timeline for the upcoming phase.
-        Discussed project requirements and timeline for the upcoming phase.
-        Client requested additional features for the dashboard interface.
-        Discussed project requirements and timeline for the upcoming phase.
-        Client requested additional features for the dashboard interface.
-        Discussed project requirements and timeline for the upcoming phase.
-        Client requested additional features for the dashboard interface.
+        {Mynotes.body}
       </p>
 
       {/* Bottom Section */}
@@ -37,8 +51,9 @@ export default function NoteCard() {
 
         {/* Right Side Icons */}
         <div className="flex items-center gap-3 text-gray-400">
-          <FiCopy className="w-5 h-5 cursor-pointer" />
-          <HiDotsVertical className="w-5 h-5 cursor-pointer" />
+          {copyied || <FiCopy className="w-5 h-5 cursor-pointer" onClick={copy}/>}
+          {!copyied || <FaCheckSquare className="w-5 h-5 "/>}
+          <RiDeleteBin5Line className="w-5 h-5 cursor-pointer" onClick={deleteItem}/>
         </div>
       </div>
     </div>

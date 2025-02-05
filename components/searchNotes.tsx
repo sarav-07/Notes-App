@@ -2,15 +2,16 @@
 import { HiOutlineSearch } from 'react-icons/hi';
 import { TbSortAscending2 } from "react-icons/tb";
 import CardDashboard from './dashboard';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { Toaster, toast } from "react-hot-toast";
+
 
 export default function SearchInput() {
   const [input, setInput] = useState("");
-  const [data, setData] = useState(null);
+  const [data, setData] = useState([]);
   const FetchData = async () => {
     try {
       const response = await fetch(`/api?query=${input}`, {
-      // const response = await fetch(`/api?query=note0`, {
         method: "GET",
       });
 
@@ -18,22 +19,42 @@ export default function SearchInput() {
         throw new Error(`Error: ${response.statusText}`);
       }
 
-      const data = await response.json();
-      console.log(data);
-      setData(data);
+      const notes = await response.json();
+      console.log("Fetched data:", notes);
+
+      if (notes.Allnotes && Array.isArray(notes.Allnotes) && notes.Allnotes.length > 0) {
+        setData(notes.Allnotes);
+      } else {
+        toast.error("Record not found .",{
+          duration:1000
+        })
+        setData([]);
+      }
     } catch (error) {
-      console.error("Fetch error:", error);
+      toast.error("Something went wrong.  .",{
+        duration:900
+      })
     }
   };
+  useEffect(() => {
+    if(input.length==0){
+      FetchData();
+    }
+  }, [input])
+  
   return (
-    <>
-      <div className="flex items-center gap-2 w-full">
+    <div className='w-full h-[95vh] p-3'>
+      <div className="flex items-center gap-2 w-full bg-white mb-1">
+        <Toaster
+          position="top-right"
+          reverseOrder={false}
+        />
         {/* Search Input Container */}
-        <div className="relative flex-1 h-full">
+        <div className="relative flex-1 h-full ">
           <input
             type="text"
             placeholder="Search..."
-            className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-zinc-00 focus:ring-1 focus:ring-zinc-border-zinc-00 transition-colors duration-200"
+            className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-zinc-200 focus:ring-1 focus:ring-zinc-200 transition-colors duration-200"
             onChange={(e) => setInput(e.target.value)}
           />
           <HiOutlineSearch className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 pointer-events-none" />
@@ -50,8 +71,8 @@ export default function SearchInput() {
           <TbSortAscending2 className="h-5 w-5" />
         </button>
       </div>
-      <CardDashboard />
-    </>
+      <CardDashboard AllData={data} />
+    </div>
 
   );
 }

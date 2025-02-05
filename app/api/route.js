@@ -5,7 +5,7 @@ import Note from "../../lib/model/note";
 export async function GET(request) {
     const { searchParams } = request.nextUrl;
     const query = searchParams.get('query')
-    console.log(query);
+    console.log(query); 
     await connecting();
     try {
         const Allnotes = await Note.find({ 
@@ -13,13 +13,8 @@ export async function GET(request) {
         });
         return NextResponse.json({Allnotes})
     } catch {
-
+        console.warn("result not found")
     }
-    return NextResponse.json({
-        status: 'fulfilled',
-        message: 'Operation successful',
-        data: { message: "sending----------" }
-    });
 }
 
 export async function POST(request) {
@@ -34,6 +29,19 @@ export async function POST(request) {
 
         const data = await Note.find();
         return NextResponse.json({ data });
+    } catch (error) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+}
+export async function DELETE(request) {
+    await connecting();
+    try {
+        const {searchParams} =request.nextUrl;
+        const query=searchParams.get("query")
+        const response= await Note.deleteOne({_id:query})
+        console.log(response);
+        return NextResponse.json({delete:query})
+
     } catch (error) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
