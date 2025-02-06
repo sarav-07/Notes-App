@@ -1,7 +1,6 @@
 import NoteCard from "./notecards";
 import AddNotes from "./addNotes";
 import custom from "./custom.module.css"
-import { useState } from "react";
 interface CardDashboardProps {
     AllData: any[];
     refreshData: () => void; // Add this line

@@ -9,7 +9,7 @@ cloudinary.config({
   secure: true, // Ensure secure uploads
 });
 
-export async function POST(request: Request) {
+export async function POST(request) {
   try {
     const { image } = await request.json();
 
