@@ -10,14 +10,14 @@ export async function POST(req) {
     await connecting();
 
     try {
-        const body = await req.json(); // Correct way to parse JSON
+        const body = await req.json(); 
         const { email, password } = body;
 
         if (!email || !password) {
             return NextResponse.json({ message: 'All fields are required!' }, { status: 400 });
         }
 
-        const existingUser = await User.findOne({ email }); // Fix: Correct field name
+        const existingUser = await User.findOne({ mail :email }); 
 
         if (!existingUser) {
             return NextResponse.json({ message: 'User not found!' }, { status: 404 });

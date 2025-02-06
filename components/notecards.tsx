@@ -8,6 +8,7 @@ import { FaCheckSquare } from "react-icons/fa";
 import { Toaster, toast } from "react-hot-toast";
 import Image from "next/image";
 import ph from "@/public/ph.jpg"
+import Modal from "./modal";
 
 interface Prop {
   _id: string;
@@ -23,6 +24,7 @@ interface NoteCardProps {
 
 export default function NoteCard({ Mynotes, refreshData }: NoteCardProps) {
   const [copyied, setCopied] = useState(false);
+  const [show, setShow] = useState(false);
   // _______________________for coping text_______________________________
   const copy = async () => {
     await navigator.clipboard.writeText(Mynotes.body);
@@ -37,7 +39,7 @@ export default function NoteCard({ Mynotes, refreshData }: NoteCardProps) {
       })
       if (response.ok) {
         toast.success("Note deleted succesfully")
-        refreshData()
+        // refreshData()
       } else { throw new Error("Error -deleting item") }
     } catch (error) {
       toast.error("Something went wrong")
@@ -62,9 +64,10 @@ export default function NoteCard({ Mynotes, refreshData }: NoteCardProps) {
       {/* Notes Content */}
       <p className={`text-gray-600 text-sm mb-4 flex-1 overflow-y-auto ${custom.scrollbar}`}>
         {Mynotes.body}
-        <Image src={Mynotes.img || ph} alt="image" width={90} height={50}/>
+        <Image src={Mynotes.img || ph} alt="image" width={90} height={50} />
         {/* {Mynotes.img} */}
       </p>
+      <button onClick={() => setShow(true)}>Show Modal</button>
       {/* Bottom Section */}
       <div className="flex justify-between items-center border-t border-gray-100 pt-4">
         {/* Left Side Icons */}
@@ -80,6 +83,18 @@ export default function NoteCard({ Mynotes, refreshData }: NoteCardProps) {
           <RiDeleteBin5Line className="w-5 h-5 cursor-pointer" onClick={deleteItem} />
         </div>
       </div>
+      {show && (
+        <div
+          className="bg-[#25252517] fixed w-screen h-screen top-0 bottom-0 right-0 left-0 backdrop-blur-sm flex items-center justify-center z-10"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShow(false);
+            }
+          }}
+        >
+          <Modal />
+        </div>
+      )}
     </div>
   );
 }
