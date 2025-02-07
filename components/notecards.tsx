@@ -7,13 +7,17 @@ import { useState } from "react";
 import { FaCheckSquare } from "react-icons/fa";
 import { Toaster, toast } from "react-hot-toast";
 import Image from "next/image";
-import ph from "@/public/ph.jpg"
+import ph from "@/public/noimg.jpg"
 import Modal from "./modal";
+import { FiEye } from 'react-icons/fi';
 
 interface Prop {
   _id: string;
   title: string;
   body: string;
+  date: string,
+  time: string,
+  order: number
   img?: string;
 }
 
@@ -23,7 +27,7 @@ interface NoteCardProps {
 }
 
 export default function NoteCard({ Mynotes, refreshData }: NoteCardProps) {
-  const [copyied, setCopied] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [show, setShow] = useState(false);
   // _______________________for coping text_______________________________
   const copy = async () => {
@@ -39,60 +43,69 @@ export default function NoteCard({ Mynotes, refreshData }: NoteCardProps) {
       })
       if (response.ok) {
         toast.success("Note deleted succesfully")
-        // refreshData()
+        refreshData()
       } else { throw new Error("Error -deleting item") }
     } catch (error) {
       toast.error("Something went wrong")
     }
   }
   return (
-    <div className="w-full max-w-96 p-4 rounded-xl border border-gray-200 bg-white h-96 min-w-96 flex flex-col">
-      <Toaster
-        position="top-right"
-        reverseOrder={true}
-      />
-      {/* Date & Time */}
-      <div className="text-xs text-gray-400 mb-2">
-        September 15, 2023 | 10:30 AM
+    <div className="w-full max-w-xs md:max-w-sm p-5 rounded-xl border border-gray-100 bg-white h-96 flex flex-col shadow-lg hover:shadow-xl transition-shadow">
+      <Toaster position="top-right" reverseOrder={true} />
+
+      {/* -----------------------------Date & Time----------------------------- */}
+      <div className="text-xs text-gray-400 mb-2 font-medium">
+        {Mynotes.date} || {Mynotes.time}
       </div>
 
       {/* Note Title */}
-      <h3 className="text-lg font-semibold text-gray-800 mb-2">
+      <h3 className="text-lg font-semibold text-gray-800 mb-2 truncate">
         {Mynotes.title}
       </h3>
 
-      {/* Notes Content */}
-      <p className={`text-gray-600 text-sm mb-4 flex-1 overflow-y-auto ${custom.scrollbar}`}>
-        {Mynotes.body}
-        <Image src={Mynotes.img || ph} alt="image" width={90} height={50} />
-        {/* {Mynotes.img} */}
-      </p>
-      <button onClick={() => setShow(true)}>Show Modal</button>
-      {/* Bottom Section */}
-      <div className="flex justify-between items-center border-t border-gray-100 pt-4">
-        {/* Left Side Icons */}
-        <div className="flex items-center gap-3 text-gray-400">
-          <FaRegImage className="w-5 h-5" />
-          <FaRegFileAudio className="w-5 h-5" />
-        </div>
+      {/* -----------------------------Notes Content----------------------------- */}
+      <div className={`text-gray-600 text-sm mb-4 flex-1 overflow-y-auto ${custom.scrollbar}`}>
+        <p className="mb-3 break-words">
+          {Mynotes.body}
+        </p>
+        <Image
+          src={Mynotes.img || ph}
+          alt="Note image"
+          width={120}
+          height={80}
+          className="rounded-lg object-cover border border-gray-100"
+        />
+      </div>
 
-        {/* Right Side Icons */}
+      {/* -----------------------------Bottom Section----------------------------- */}
+      <div className="flex justify-between items-center border-t border-gray-100 pt-4">
+        {/* View Button */}
+        <button
+          onClick={() => setShow(true)}
+          className="flex items-center gap-1.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-1.5 rounded-full text-sm font-medium hover:from-blue-600 hover:to-blue-700 transition-all"
+        >
+          <FiEye className="w-4 h-4" />
+          View
+        </button>
+
+        {/* -----------------------------Right Side Actions----------------------------- */}
         <div className="flex items-center gap-3 text-gray-400">
-          {copyied || <FiCopy className="w-5 h-5 cursor-pointer" onClick={copy} />}
-          {!copyied || <FaCheckSquare className="w-5 h-5 " />}
-          <RiDeleteBin5Line className="w-5 h-5 cursor-pointer" onClick={deleteItem} />
+          {copied || <FiCopy className="w-4 h-4 cursor-pointer hover:text-gray-600" onClick={copy} />}
+          {copied && <FaCheckSquare className="w-4 h-4 text-green-500" />}
+          <RiDeleteBin5Line
+            className="w-4 h-4 cursor-pointer hover:text-red-500"
+            onClick={deleteItem}
+          />
         </div>
       </div>
+
+      {/* -----------------------------Modal Overlay----------------------------- */}
       {show && (
         <div
-          className="bg-[#25252517] fixed w-screen h-screen top-0 bottom-0 right-0 left-0 backdrop-blur-sm flex items-center justify-center z-10"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) {
-              setShow(false);
-            }
-          }}
+          className="bg-[#25252517] fixed inset-0 backdrop-blur-sm flex items-center justify-center z-20 p-2 md:p-4"
+          onClick={(e) => e.target === e.currentTarget && setShow(false)}
         >
-          <Modal />
+          <Modal noteData={Mynotes} refreshData={refreshData} />
         </div>
       )}
     </div>

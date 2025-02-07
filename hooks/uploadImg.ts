@@ -7,18 +7,18 @@ export function useImageUpload() {
     const [imageUrl, setImageUrl] = useState<string>("");
     const [isUploading, setIsUploading] = useState<boolean>(false);
 
-    // Function to set image file
+    // ______________ Function to set image file______________ 
     const handleImageChange = (file: File | null) => {
         setImageFile(file);
     };
 
-    // **New function to reset image selection**
+    // ______________ New function to reset image selection______________
     const resetImage = () => { 
         setImageFile(null);
         setImageUrl("");
     };
 
-    // Upload Image Function
+    // ______________ Upload Image Function______________ 
     const uploadImage = async (): Promise<string | null> => {
         if (!imageFile) {
             toast.error("No image selected");
@@ -28,7 +28,7 @@ export function useImageUpload() {
         setIsUploading(true);
 
         try {
-            // Convert image to Base64
+            // _______________ Convert image to Base64 ___________
             const reader = new FileReader();
             reader.readAsDataURL(imageFile);
 
@@ -46,7 +46,7 @@ export function useImageUpload() {
                 };
             });
 
-            // Upload to API (e.g., Cloudinary)
+            //_________Upload to API (Cloudinary)_________
             const response = await fetch("/api/upload", {
                 method: "POST",
                 body: JSON.stringify({ image: base64Image }),
@@ -60,14 +60,14 @@ export function useImageUpload() {
             const data = await response.json();
             setImageUrl(data.url); // Update state for UI
             
-            // **Reset imageFile after successful upload**
+            // ----Reset imageFile in component after successful upload ------
             resetImage();
 
             return data.url; // Return the new URL
         } catch (error) {
             console.error("Image upload error:", error);
             toast.error("Image upload failed. Please try again.");
-            resetImage();  // **Reset in case of error**
+            resetImage();  
             return null;
         } finally {
             setIsUploading(false);
@@ -80,6 +80,6 @@ export function useImageUpload() {
         isUploading,
         handleImageChange,
         uploadImage,
-        resetImage,  // **Expose reset function**
+        resetImage,  
     };
 }

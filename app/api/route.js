@@ -18,15 +18,23 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
-    await connecting();
+    await connecting(); // Ensure database connection
 
     try {
         const body = await request.json();
-        const { noteCount, content ,imageUrl} = body;
-        console.log(imageUrl)
-        const notes = new Note({ title: noteCount, body: content ,img:imageUrl });
-        await notes.save().then(() => console.log("-----------Note Saves successsfully ---------"))
+        const { noteCount, content, imageUrl, date, time, order } = body;
 
+        // Create a new note with all the fields
+        const notes = new Note({
+            title: noteCount,
+            body: content,
+            img: imageUrl,
+            date: date,
+            time: time,
+            order: order,
+        });
+
+        await notes.save().then(() => console.log("-----------Note saved successfully ---------"));
         const data = await Note.find();
         return NextResponse.json({ data });
     } catch (error) {
@@ -46,3 +54,37 @@ export async function DELETE(request) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
+export async function PUT(request) {
+    await connecting();
+  
+    try {
+      const { searchParams } = request.nextUrl;
+      const id = searchParams.get("id");
+  
+      if (!id) {
+        return NextResponse.json({ error: "Note ID is required" }, { status: 400 });
+      }
+  
+      const body = await request.json();
+      const { title, body: noteBody } = body;
+  
+      if (!title || !noteBody) {
+        return NextResponse.json({ error: "Title and body are required" }, { status: 400 });
+      }
+  
+      const updatedNote = await Note.findByIdAndUpdate(
+        id,
+        { title, body: noteBody },
+        { new: true }
+      );
+  
+      if (!updatedNote) {
+        return NextResponse.json({ error: "Note not found" }, { status: 404 });
+      }
+  
+      return NextResponse.json({ success: true, note: updatedNote });
+  
+    } catch (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+  }

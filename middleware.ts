@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose"; // Required for Edge Runtime
 
 export async function middleware(req: NextRequest) {
-  const SECRET_KEY = "your_secret_key";
+  const SECRET_KEY = process.env.SECRET_KEY;
   console.log(
-    "\nMiddleware running for:=========   = =  ",
+    " ------- Middleware running --- ",
     req.nextUrl.pathname
   );
 
@@ -16,9 +16,15 @@ export async function middleware(req: NextRequest) {
   } else {
     const secret = new TextEncoder().encode(SECRET_KEY);
     const { payload } = await jwtVerify(authToken, secret);
-    if(payload){
-      return NextResponse.next();
-    }else{
+    
+    if (payload) {
+      // middleware.ts
+      const response = NextResponse.next();
+      response.cookies.set("payload", JSON.stringify(payload), {
+        secure: process.env.NODE_ENV === "production",
+      });
+      return response;
+    } else {
       return NextResponse.redirect(new URL("/register", req.url));
     }
   }

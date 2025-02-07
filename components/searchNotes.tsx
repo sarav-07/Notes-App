@@ -44,7 +44,7 @@ export default function SearchInput() {
   
   return (
     <div className='w-full h-[95vh] p-3'>
-      <div className="flex items-center gap-2 w-full bg-white mb-1">
+      <div className="flex items-center gap-2 w-full bg-white mb-1 ">
         <Toaster
           position="top-right"
           reverseOrder={false}
@@ -54,7 +54,7 @@ export default function SearchInput() {
           <input
             type="text"
             placeholder="Search..."
-            className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-zinc-200 focus:ring-1 focus:ring-zinc-200 transition-colors duration-200"
+            className="w-full pl-10 pr-4 py-3 rounded-xl border shadow-md border-gray-200 focus:outline-none focus:border-zinc-200 focus:ring-1 focus:ring-zinc-200 transition-colors duration-200"
             onChange={(e) => setInput(e.target.value)}
           />
           <HiOutlineSearch className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 pointer-events-none" />

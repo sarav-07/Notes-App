@@ -20,13 +20,14 @@ export default function AuthPage() {
 
     const sign = async (e: any) => {
         e.preventDefault();
+        // ________________SIGN UP (FETCHING API)____________________
         if (isSignup) {
             const response = await fetch("/api/auth/signup", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify(form) // Ensure you stringify the form data
+                body: JSON.stringify(form) 
             });
 
             if (response.ok) {
@@ -36,6 +37,7 @@ export default function AuthPage() {
                 toast.error("Sign Up Failed!");
             }
         } else {
+        // __________________LOGIN LOGIC (fetch /api/auth/login)__________
             const response = await fetch("/api/auth/login", {
                 method: "POST",
                 headers: {
@@ -46,6 +48,8 @@ export default function AuthPage() {
 
             if (response.ok) {
                 toast.success("Login Successful!");
+                setForm({ name: '', email: '', password: '' });
+                window.location.href="/"
             } else {
                 toast.error("Login Failed!");
             }
@@ -53,7 +57,7 @@ export default function AuthPage() {
     };
 
     useEffect(() => {
-        // Reset form when switching between sign up and login
+        // Reseting form.........................
         setForm({ name: '', email: '', password: '' });
     }, [isSignup]);
 
@@ -61,12 +65,12 @@ export default function AuthPage() {
         <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
             <Toaster position="top-right" reverseOrder={true} />
             <div className="bg-white shadow-lg rounded-lg flex flex-col md:flex-row w-full max-w-4xl overflow-hidden">
-                {/* Left Side - Image Upload */}
+                {/* -------------------------Left Side - Image Upload------------------------- */}
                 <div className="md:w-1/2 flex flex-col items-center justify-center bg-gray-200 w-full h-2/4">
                     <Image src={login} alt="loading" className="w-full h-full" />
                 </div>
 
-                {/* Right Side - Form */}
+                {/* -------------------------Right Side - Form------------------------- */}
                 <div className="md:w-1/2 p-8 flex flex-col justify-center w-full">
                     <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">
                         {isSignup ? "Sign Up" : "Login"}
