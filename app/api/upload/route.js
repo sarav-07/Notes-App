@@ -36,3 +36,19 @@ export async function POST(request) {
     );
   }
 }
+export async function DELETE(request) {
+  const {img}=await request.json()
+  const public_id_img=img.split('/').pop().split(".")[0]
+
+  const response = await cloudinary.uploader.destroy(public_id_img,{
+    invalidate: true,
+  });
+  if (response.result === 'ok') {
+    return NextResponse.json({ message: 'Image deleted successfully' });
+  } else {
+    return NextResponse.json(
+      { error: 'Failed to delete image' },
+      { status: 500 }
+    );
+  }
+}

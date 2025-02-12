@@ -1,7 +1,6 @@
 "use client"
 import { FiCopy } from "react-icons/fi";
 import { RiDeleteBin5Line } from "react-icons/ri";
-import { FaRegImage, FaRegFileAudio } from "react-icons/fa";
 import custom from "./custom.module.css"
 import { useState } from "react";
 import { FaCheckSquare } from "react-icons/fa";
@@ -29,6 +28,7 @@ interface NoteCardProps {
 export default function NoteCard({ Mynotes, refreshData }: NoteCardProps) {
   const [copied, setCopied] = useState(false);
   const [show, setShow] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   // _______________________for coping text_______________________________
   const copy = async () => {
     await navigator.clipboard.writeText(Mynotes.body);
@@ -38,11 +38,25 @@ export default function NoteCard({ Mynotes, refreshData }: NoteCardProps) {
   // ______________________Making delete request of note ______________________
   const deleteItem = async () => {
     try {
+      // Delete image using fetch
+      setDeleting(true);
+      if (Mynotes.img) {
+        await fetch('/api/upload', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },  
+          body: JSON.stringify({
+            img: Mynotes.img
+          }),
+        });
+      }
       const response = await fetch(`/api?query=${Mynotes._id}`, {
         method: "DELETE"
       })
       if (response.ok) {
         toast.success("Note deleted succesfully")
+        setDeleting(false)
         refreshData()
       } else { throw new Error("Error -deleting item") }
     } catch (error) {
@@ -88,14 +102,19 @@ export default function NoteCard({ Mynotes, refreshData }: NoteCardProps) {
           View
         </button>
 
-        {/* -----------------------------Right Side Actions----------------------------- */}
+        {/* -----------------------------Right Side Actions(Bin)----------------------------- */}
         <div className="flex items-center gap-3 text-gray-400">
           {copied || <FiCopy className="w-4 h-4 cursor-pointer hover:text-gray-600" onClick={copy} />}
           {copied && <FaCheckSquare className="w-4 h-4 text-green-500" />}
-          <RiDeleteBin5Line
-            className="w-4 h-4 cursor-pointer hover:text-red-500"
-            onClick={deleteItem}
-          />
+
+          {deleting ? (
+            <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+          ) : (
+            <RiDeleteBin5Line
+              className="w-4 h-4 cursor-pointer hover:text-red-500"
+              onClick={deleteItem}
+            />
+          )}
         </div>
       </div>
 

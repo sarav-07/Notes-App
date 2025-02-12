@@ -56,7 +56,7 @@ const NoteModal = ({ noteData , refreshData }: NoteCardProps) => {
     <div className="w-[80%] max-w-[1200px] h-[90vh] md:h-[65vh] bg-white rounded-xl shadow-2xl p-4 md:p-6 flex flex-col">
       {/* Creation Date - Removed border */}
       <div className="text-xs md:text-sm text-gray-500 flex flex-col md:flex-row md:items-center gap-1 md:gap-2 pb-2 md:h-10">
-        <span>sssss </span>
+        <span>{noteData.date} || {noteData.time}</span>
       </div>
 
       {/* Main Content */}
