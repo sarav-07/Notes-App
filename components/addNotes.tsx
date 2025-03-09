@@ -19,7 +19,7 @@ export default function AddNotes({ refreshData }: Props) {
     const [time, setTime] = useState(0);
     const [content, setContent] = useState("");
     const [number, setNumber] = useState(0);
-    const [norder ,setNorder]=useState(10);
+    const [norder, setNorder] = useState(10);
     const {
         imageFile,
         imageUrl,
@@ -62,23 +62,23 @@ export default function AddNotes({ refreshData }: Props) {
     // ______________________-> setting img -> saving img -> getting  img url -> Posting _________________
     const sendData = async () => {
         let uploadedImageUrl = imageUrl;
-
-        if (imageFile) {
-            const newImageUrl = await uploadImage();
-            if (newImageUrl === null) {
-                toast.error("Image upload failed. Note not sent.");
-                return;
-            }
-            uploadedImageUrl = newImageUrl;
-        }
-
         try {
+
+            if (imageFile) {
+                const newImageUrl = await uploadImage();
+                if (newImageUrl === null) {
+                    toast.error("Image upload failed. Note not sent.");
+                    return;
+                }
+                uploadedImageUrl = newImageUrl;
+            }
+
             // _____________POSTING DATA ______________
             if (content.length > 0 || uploadedImageUrl) {
                 const noteCount = "Note" + number;
                 const currentDate = moment().format('YYYY-MM-DD');
                 const currentTime = moment().format('HH:mm:ss');
-                setNorder((e)=>e+10)
+                setNorder((e) => e + 10)
                 const order = norder;
 
                 const response = await fetch("/api", {
@@ -109,7 +109,8 @@ export default function AddNotes({ refreshData }: Props) {
                 toast.error("Please add content or image", { duration: 800 });
             }
         } catch (err) {
-            toast.error("Failed to add note.");
+            toast.error("Failed to add note");
+            console.log(err)
         }
     };
 

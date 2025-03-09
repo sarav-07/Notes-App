@@ -1,8 +1,19 @@
 import NoteCard from "./notecards";
 import AddNotes from "./addNotes";
 import custom from "./custom.module.css"
+
+
+interface Prop {
+    _id: string;
+    title: string;
+    body: string;
+    date: string,
+    time: string,
+    order: number
+    img?: string;
+}
 interface CardDashboardProps {
-    AllData: any[];
+    AllData: Prop[];
     refreshData: () => void; // Add this line
 }
 export default function CardDashboard({ AllData, refreshData }: CardDashboardProps) {

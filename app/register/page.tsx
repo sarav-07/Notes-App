@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { FaUser, FaLock, FaEnvelope, FaImage } from "react-icons/fa";
+import { FaUser, FaLock, FaEnvelope } from "react-icons/fa";
 import Image from "next/image";
 import login from "@/public/login.jpg";
 import { Toaster, toast } from "react-hot-toast";
@@ -18,7 +18,7 @@ export default function AuthPage() {
         setForm({ ...form, [name]: value });
     };
 
-    const sign = async (e: any) => {
+    const sign = async (e: any ) => {
         e.preventDefault();
         // ________________SIGN UP (FETCHING API)____________________
         if (isSignup) {

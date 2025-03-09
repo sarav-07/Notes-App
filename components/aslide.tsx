@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { FaHome, FaHeart, FaUserCircle, FaBars, FaTimes } from 'react-icons/fa';
 import { FiLogOut, FiChevronDown } from 'react-icons/fi';
 import Link from 'next/link';
-import { getCookie, deleteCookie } from "cookies-next";
+import { getCookie} from "cookies-next";
 
 const AsidePanel = () => {
   const [payload, setPayload] = useState<{ email?: string } | null>(null);

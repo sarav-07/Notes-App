@@ -2,14 +2,14 @@
 import { HiOutlineSearch } from 'react-icons/hi';
 import { TbSortAscending2 } from "react-icons/tb";
 import CardDashboard from './dashboard';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Toaster, toast } from "react-hot-toast";
 
 
 export default function SearchInput() {
   const [input, setInput] = useState("");
   const [data, setData] = useState([]);
-  const FetchData = async () => {
+  const FetchData = useCallback(async () => {
     try {
       const response = await fetch(`/api?query=${input}`, {
         method: "GET",
@@ -25,23 +25,25 @@ export default function SearchInput() {
       if (notes.Allnotes && Array.isArray(notes.Allnotes) && notes.Allnotes.length > 0) {
         setData(notes.Allnotes);
       } else {
-        toast.error("Record not found .",{
-          duration:1000
-        })
+        toast.error("Record not found.", {
+          duration: 1000
+        });
         setData([]);
       }
     } catch (error) {
-      toast.error("Something went wrong.  .",{
-        duration:900
-      })
+      toast.error("Something went wrong.", {
+        duration: 900
+      });
+      console.log(error);
     }
-  };
+  }, [input]); // Depend only on `input`
+
   useEffect(() => {
-    if(input.length==0){
+    if (input.length === 0) {
       FetchData();
     }
-  }, [input])
-  
+  }, [input, FetchData]); // Include `FetchData` in the dependency array
+
   return (
     <div className='w-full h-[95vh] p-3'>
       <div className="flex items-center gap-2 w-full bg-white mb-1 ">

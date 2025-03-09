@@ -61,6 +61,7 @@ export default function NoteCard({ Mynotes, refreshData }: NoteCardProps) {
       } else { throw new Error("Error -deleting item") }
     } catch (error) {
       toast.error("Something went wrong")
+      console.log(error)
     }
   }
   return (
