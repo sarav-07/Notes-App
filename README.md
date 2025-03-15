@@ -1,5 +1,8 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+<h1 style="color:red">live Demo : https://notes-app-lyart-iota.vercel.app/register </h1>
+
+
 ## Getting Started
 
 First, run the development server:
